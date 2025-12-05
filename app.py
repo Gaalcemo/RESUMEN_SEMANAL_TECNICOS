@@ -160,11 +160,17 @@ def is_person_name(name: str) -> bool:
 
 @st.cache_resource
 def get_gspread_client():
+    import json
+    from google.oauth2.service_account import Credentials
+
     scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-    creds = Credentials.from_service_account_file("service_account.json", scopes=scopes)
+
+    # Leemos el bloque [gcp_service_account] de secrets
+    service_info = dict(st.secrets["gcp_service_account"])
+
+    creds = Credentials.from_service_account_info(service_info, scopes=scopes)
     client = gspread.authorize(creds)
     return client
-
 
 def find_day_row(df: pd.DataFrame) -> Optional[int]:
     for idx in range(min(10, len(df))):
@@ -672,3 +678,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
